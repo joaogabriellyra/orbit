@@ -1,11 +1,11 @@
 import fastify from 'fastify'
+import { env } from '../env'
 
 const app = fastify()
-
 app
   .listen({
-    port: 3000,
+    port: env.PORT,
   })
   .then(() => {
-    console.log('http server listening on port 3000')
+    console.log(`http server listening on port ${env.PORT}`)
   })
