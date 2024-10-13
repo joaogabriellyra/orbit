@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/http/server.ts",
-    "lint": "eslint src --ext .ts --fix"
+    "dev": "tsx watch --env-file .env src/http/server.ts",
+    "seed": "tsx --env-file .env src/db/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +18,11 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
+    "dayjs": "^1.11.13",
     "drizzle-orm": "^0.34.1",
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "postgres": "^3.4.4",
+    "zod": "^3.23.8"
   }
 }
