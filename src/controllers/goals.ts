@@ -21,4 +21,13 @@ export default class GoalsController {
       this.reply.status(500).send({ error })
     }
   }
+
+  public async getGoalsCompleted() {
+    try {
+      const goalsCompleted = await this.service.getCompletedGoals()
+      this.reply.status(200).send(goalsCompleted)
+    } catch (error) {
+      this.reply.status(500).send({ error })
+    }
+  }
 }
