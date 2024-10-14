@@ -8,4 +8,8 @@ export async function goalsRoutes(app: FastifyInstance) {
   app.get('/completed', async (req: FastifyRequest, reply: FastifyReply) =>
     new GoalsController(req, reply).getGoalsCompleted()
   )
+
+  app.get('/pending', async (req: FastifyRequest, reply: FastifyReply) =>
+    new GoalsController(req, reply).getGoalsPending()
+  )
 }

@@ -30,4 +30,13 @@ export default class GoalsController {
       this.reply.status(500).send({ error })
     }
   }
+
+  public async getGoalsPending() {
+    try {
+      const goalsPending = await this.service.getGoalsPending()
+      this.reply.status(200).send(goalsPending)
+    } catch (error) {
+      this.reply.status(500).send({ error })
+    }
+  }
 }
