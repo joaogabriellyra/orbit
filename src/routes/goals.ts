@@ -16,4 +16,8 @@ export async function goalsRoutes(app: FastifyInstance) {
   app.post('/complete', async (req: FastifyRequest, reply: FastifyReply) =>
     new GoalsController(req, reply).completeAGoal()
   )
+
+  app.post('/summary', async (req: FastifyRequest, reply: FastifyReply) =>
+    new GoalsController(req, reply).getSummary()
+  )
 }
