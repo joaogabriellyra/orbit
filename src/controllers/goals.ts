@@ -43,7 +43,23 @@ export default class GoalsController {
   public async completeAGoal() {
     try {
       const { id } = completeAGoalsSchema.parse(this.req.body)
+      const goal = await this.service.findTheGoalById(id)
+      if (!goal.length) {
+        return this.reply.status(404).send({ message: 'Goal not found' })
+      }
+      const howManyTimesThisGoalWasCompleted = (
+        await this.service.getWeekPendingGoals()
+      ).find(goal => goal.id === id)
+      if (
+        howManyTimesThisGoalWasCompleted?.completionCount ===
+        howManyTimesThisGoalWasCompleted?.desiredWeeklyFrequency
+      ) {
+        return this.reply.status(409).send({
+          message: 'the desired weekly frequency has already been completed',
+        })
+      }
       await this.service.completeAGoal(id)
+      this.reply.status(201).send()
     } catch (error) {
       this.reply.status(500).send({ error })
     }

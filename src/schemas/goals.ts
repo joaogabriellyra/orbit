@@ -6,5 +6,5 @@ export const createGoalBodySchema = z.object({
 })
 
 export const completeAGoalsSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().cuid2(),
 })

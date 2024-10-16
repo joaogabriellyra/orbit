@@ -63,4 +63,20 @@ export default class GoalsService {
         eq(goalsCompletionCount.goalId, goalsCreatedUpToWeek.id)
       )
   }
+
+  public async completeAGoal(goalId: string) {
+    await db.insert(goalsCompleted).values({
+      goalId,
+    })
+  }
+
+  public async findTheGoalById(id: string) {
+    return await db
+      .select({
+        id: goals.id,
+        desireedWeeklyFrequency: goals.desiredWeeklyFrequency,
+      })
+      .from(goals)
+      .where(eq(goals.id, id))
+  }
 }
