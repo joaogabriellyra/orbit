@@ -12,4 +12,8 @@ export async function goalsRoutes(app: FastifyInstance) {
   app.get('/pending', async (req: FastifyRequest, reply: FastifyReply) =>
     new GoalsController(req, reply).getWeekPendingGoals()
   )
+
+  app.post('/completed', async (req: FastifyRequest, reply: FastifyReply) =>
+    new GoalsController(req, reply).completeAGoal()
+  )
 }
