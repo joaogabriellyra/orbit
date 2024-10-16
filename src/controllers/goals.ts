@@ -24,17 +24,17 @@ export default class GoalsController {
 
   public async getGoalsCompleted() {
     try {
-      const goalsCompleted = await this.service.getCompletedGoals()
-      this.reply.status(200).send(goalsCompleted)
+      const goalsCompletions = await this.service.getgoalsCompleted()
+      this.reply.status(200).send(goalsCompletions)
     } catch (error) {
       this.reply.status(500).send({ error })
     }
   }
 
-  public async getGoalsPending() {
+  public async getWeekPendingGoals() {
     try {
-      const goalsPending = await this.service.getGoalsPending()
-      this.reply.status(200).send(goalsPending)
+      const pendingGoals = await this.service.getWeekPendingGoals()
+      this.reply.status(200).send(pendingGoals)
     } catch (error) {
       this.reply.status(500).send({ error })
     }
