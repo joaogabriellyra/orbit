@@ -64,4 +64,13 @@ export default class GoalsController {
       this.reply.status(500).send({ error })
     }
   }
+
+  public async getSummary() {
+    try {
+      const result = await this.service.getSummary()
+      this.reply.status(200).send(result)
+    } catch (error) {
+      this.reply.status(500).send({ error })
+    }
+  }
 }
