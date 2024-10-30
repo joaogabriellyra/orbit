@@ -1,8 +1,9 @@
-import { and, count, eq, gte, lte, sql } from 'drizzle-orm'
+import { and, count, desc, eq, gte, lte, sql } from 'drizzle-orm'
 import { db } from '../db'
 import { goals, goalsCompleted } from '../db/schema'
 import type IGoal from '../interfaces/IGoal'
 import dayjs from 'dayjs'
+import type { GoalsPerDay } from '../interfaces/IGoal'
 
 export default class GoalsService {
   public async create(goal: IGoal) {
@@ -101,9 +102,10 @@ export default class GoalsService {
         .select({
           id: goalsCompleted.id,
           title: goals.title,
-          completedAtDate: sql /*sql*/`
+          createdAt: goalsCompleted.createdAt,
+          completedAt: sql /*sql*/`
             DATE(${goalsCompleted.createdAt})
-          `.as('completedAtDate'),
+          `.as('completedAt'),
         })
         .from(goalsCompleted)
         .innerJoin(goals, eq(goals.id, goalsCompleted.goalId))
@@ -113,6 +115,7 @@ export default class GoalsService {
             lte(goalsCompleted.createdAt, lastDayOfWeek)
           )
         )
+        .orderBy(desc(goalsCompleted.createdAt))
     )
 
     const goalsCompletedGroupedByDay = db
@@ -120,35 +123,36 @@ export default class GoalsService {
       .as(
         db
           .select({
-            completedAtDate: goalsCompletedInWeek.completedAtDate,
+            completedAtDate: goalsCompletedInWeek.completedAt,
             completions: sql /*sql*/`
               JSON_AGG(
                 JSON_BUILD_OBJECT(
                   'id', ${goalsCompletedInWeek.id},
                   'title', ${goalsCompletedInWeek.title},
-                  'completedAt', ${goalsCompletedInWeek.completedAtDate}
+                  'completedAt', ${goalsCompletedInWeek.createdAt}
                 )
               )
           `.as('completions'),
           })
           .from(goalsCompletedInWeek)
-          .groupBy(goalsCompletedInWeek.completedAtDate)
+          .groupBy(goalsCompletedInWeek.completedAt)
+          .orderBy(desc(goalsCompletedInWeek.completedAt))
       )
 
-    return await db
+    const [summary] = await db
       .with(
         goalsCreatedUpToWeek,
         goalsCompletedInWeek,
         goalsCompletedGroupedByDay
       )
       .select({
-        completed: sql /*sql*/`
-          (SELECT COUNT(*) FROM ${goalsCompletedGroupedByDay})
+        completed: sql<number> /*sql*/`
+          (SELECT COUNT(*) FROM ${goalsCompletedInWeek})::DECIMAL
         `.mapWith(Number),
         total: sql /*sql*/`
           (SELECT SUM(${goalsCreatedUpToWeek.desiredWeeklyFrequency}) FROM ${goalsCreatedUpToWeek})
         `.mapWith(Number),
-        goalsPerDay: sql /*sql*/`
+        goalsPerDay: sql /*sql*/<GoalsPerDay>`
           JSON_OBJECT_AGG(
             ${goalsCompletedGroupedByDay.completedAtDate},
             ${goalsCompletedGroupedByDay.completions}
@@ -156,5 +160,20 @@ export default class GoalsService {
         `,
       })
       .from(goalsCompletedGroupedByDay)
+
+    return {
+      summary,
+    }
+  }
+
+  public async removeACompletedGoal(id: string): Promise<
+    {
+      deletedId: string
+    }[]
+  > {
+    return await db
+      .delete(goalsCompleted)
+      .where(eq(goalsCompleted.id, id))
+      .returning({ deletedId: goalsCompleted.id })
   }
 }

@@ -5,6 +5,6 @@ export const createGoalBodySchema = z.object({
   desiredWeeklyFrequency: z.number().int().min(1).max(7),
 })
 
-export const completeAGoalsSchema = z.object({
+export const checkAGoalIdSchema = z.object({
   id: z.string().cuid2(),
 })
