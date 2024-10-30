@@ -20,4 +20,8 @@ export async function goalsRoutes(app: FastifyInstance) {
   app.get('/summary', async (req: FastifyRequest, reply: FastifyReply) =>
     new GoalsController(req, reply).getSummary()
   )
+
+  app.delete('/completed', async (req: FastifyRequest, reply: FastifyReply) =>
+    new GoalsController(req, reply).removeACompletedGoal()
+  )
 }

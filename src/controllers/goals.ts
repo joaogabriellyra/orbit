@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import GoalsService from '../services/goals'
-import { completeAGoalsSchema, createGoalBodySchema } from '../schemas/goals'
+import { checkAGoalIdSchema, createGoalBodySchema } from '../schemas/goals'
 
 export default class GoalsController {
   private req: FastifyRequest
@@ -42,7 +42,7 @@ export default class GoalsController {
 
   public async completeAGoal() {
     try {
-      const { id } = completeAGoalsSchema.parse(this.req.body)
+      const { id } = checkAGoalIdSchema.parse(this.req.body)
       const goal = await this.service.findTheGoalById(id)
       if (!goal.length) {
         return this.reply.status(404).send({ message: 'Goal not found' })
@@ -67,8 +67,22 @@ export default class GoalsController {
 
   public async getSummary() {
     try {
-      const result = await this.service.getSummary()
-      this.reply.status(200).send(result)
+      const { summary } = await this.service.getSummary()
+      this.reply.status(200).send(summary)
+    } catch (error) {
+      this.reply.status(500).send({ error })
+    }
+  }
+
+  public async removeACompletedGoal() {
+    try {
+      const { id } = checkAGoalIdSchema.parse(this.req.body)
+      const deletedId = await this.service.removeACompletedGoal(id)
+      console.log(deletedId)
+      if (!deletedId.length) {
+        this.reply.status(404).send({ message: 'Goal not found!' })
+      }
+      this.reply.status(204).send()
     } catch (error) {
       this.reply.status(500).send({ error })
     }
